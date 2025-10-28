@@ -19,7 +19,7 @@ public class GlobalExceptionHandler {
                 .body(ex.toResponse());
     }
 
-    @ExceptionHandler(ApiUnavailableException.class)
+    @ExceptionHandler(InvalidDataException.class)
     public ResponseEntity<Map<String, String>> handleApiInvalidData(InvalidDataException ex) {
         Map<String, String> response = new HashMap<>();
         response.put("error", ex.getMessage());
