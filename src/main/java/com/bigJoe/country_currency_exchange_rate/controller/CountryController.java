@@ -5,11 +5,13 @@ import com.bigJoe.country_currency_exchange_rate.service.CountryImageService;
 import com.bigJoe.country_currency_exchange_rate.service.CountryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 
@@ -68,13 +70,19 @@ public class CountryController {
         }
 
         try {
-            byte[] imageBytes = java.nio.file.Files.readAllBytes(image.toPath());
+            byte[] imageBytes = Files.readAllBytes(image.toPath());
             return ResponseEntity.ok()
-                    .contentType(org.springframework.http.MediaType.IMAGE_PNG)
+                    .contentType(MediaType.IMAGE_PNG)
                     .body(imageBytes);
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Could not read summary image"));
         }
+    }
+
+    @PatchMapping("/countries/update")
+    public ResponseEntity<?> updateCountry(@RequestBody String name, String population, String currencyCode) {
+            Country updatedCountry = countryService.updateOrInsertCountry(name, population, currencyCode);
+            return ResponseEntity.ok(updatedCountry);
     }
 }
