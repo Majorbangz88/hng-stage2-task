@@ -16,4 +16,6 @@ public interface CountryService {
     void deleteCountry(String name);
 
     Map<String, Object> getStatus();
+
+    Country updateOrInsertCountry(String name, String population, String currencyCode);
 }

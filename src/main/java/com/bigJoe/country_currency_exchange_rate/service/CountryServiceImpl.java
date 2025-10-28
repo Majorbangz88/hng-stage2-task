@@ -3,6 +3,7 @@ package com.bigJoe.country_currency_exchange_rate.service;
 import com.bigJoe.country_currency_exchange_rate.data.model.Country;
 import com.bigJoe.country_currency_exchange_rate.data.repository.CountryRepository;
 import com.bigJoe.country_currency_exchange_rate.exceptions.CountryNotFoundException;
+import com.bigJoe.country_currency_exchange_rate.exceptions.InvalidDataException;
 import com.bigJoe.country_currency_exchange_rate.utils.CountryUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -153,5 +154,46 @@ public class CountryServiceImpl implements CountryService {
         return status;
     }
 
+    public Country updateOrInsertCountry(String name, String population, String currencyCode) {
+        validateCountryData(name, population, currencyCode);
+
+        int pop = Integer.parseInt(population);
+
+        Optional<Country> existingOpt = repository.findByNameIgnoreCase(name);
+
+        double randomMultiplier = 1000 + Math.random() * 1000;
+        double estimatedGdp = (pop * randomMultiplier);
+
+        Country country = existingOpt.orElseGet(Country::new);
+
+        country.setName(name);
+        country.setPopulation(pop);
+        country.setCurrency_code(currencyCode);
+        country.setEstimated_gdp(estimatedGdp);
+        country.setLastRefreshedAt(LocalDateTime.now());
+
+        return repository.save(country);
+    }
+
+    private void validateCountryData(String name, String population, String currencyCode) {
+        Map<String, String> errors = new HashMap<>();
+
+        if (name == null || name.trim().isEmpty()) {
+            errors.put("name", "is required");
+        }
+        if (population == null) {
+            errors.put("population", "is required");
+        } else {
+            int pop = Integer.parseInt(population);
+            if (pop <= 0) errors.put("population", "must be greater than 0");
+        }
+        if (currencyCode == null || currencyCode.trim().isEmpty()) {
+            errors.put("currency_code", "is required");
+        }
+
+        if (!errors.isEmpty()) {
+            throw new InvalidDataException(errors);
+        }
+    }
 
 }

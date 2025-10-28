@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -85,8 +86,19 @@ public class CountryUtil {
             }
 
             if (data.containsKey("rates")) {
-                return (Map<String, Double>) data.get("rates");
+                Object ratesObj = data.get("rates");
+                if (ratesObj instanceof Map<?, ?> ratesMap) {
+                    Map<String, Double> cleaned = new HashMap<>();
+                    ratesMap.forEach((k, v) -> {
+                        if (v instanceof Number num) {
+                            cleaned.put(String.valueOf(k), num.doubleValue());
+                        }
+                    });
+                    return cleaned;
+                }
             }
+
+
             return Collections.emptyMap();
         } catch (Exception e) {
             throw new ApiUnavailableException(

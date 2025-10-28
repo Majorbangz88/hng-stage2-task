@@ -10,5 +10,7 @@ public interface CountryRepository extends JpaRepository<Country, Long> {
     Optional<Country> findByName(String name);
 
     Optional<Country> findTopByOrderByLastRefreshedAtDesc();
+
+    Optional<Country> findByNameIgnoreCase(String name);
 }
 
